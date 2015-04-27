@@ -12,9 +12,17 @@ namespace SeamCarvingGUI
 {
     public partial class ImageForm : Form
     {
-        public ImageForm()
+        private readonly ControlForm _controlForm;
+
+        public ImageForm(ControlForm controlForm)
         {
+            _controlForm = controlForm;
             InitializeComponent();
+        }
+
+        private void ImageForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _controlForm.DisableImageControls();
         }
     }
 }
