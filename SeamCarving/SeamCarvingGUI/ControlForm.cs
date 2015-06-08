@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using SeamCarvingCore;
 
 namespace SeamCarvingGUI
 {
@@ -37,7 +32,21 @@ namespace SeamCarvingGUI
             ImageHeightNumeric.Value = image.Height;
             ImageWidthNumeric.Value = image.Width;
             EnableImageControls();
+
+            //for testing
+            //MemoryStream ms = new MemoryStream();
+            //image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+
+            int[,] m;
+            var bitmap = SeamCarving.FindImageEnergy(image, EnergyFunction.Default, out m);
+
+            _imageForm.imageBox.Image = bitmap;
+
+            var bitmapWithSeam = SeamCarving.FindSeam(bitmap, m);
+            _imageForm.imageBox.Image = bitmapWithSeam;
         }
+
+        
 
         public void EnableImageControls()
         {
@@ -59,5 +68,7 @@ namespace SeamCarvingGUI
 
             _imageForm.imageBox.Image.Save(SaveFileDialog.FileName);
         }
+
+
     }
 }
