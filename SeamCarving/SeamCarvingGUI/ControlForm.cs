@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using SeamCarvingCore;
@@ -37,16 +38,21 @@ namespace SeamCarvingGUI
             //MemoryStream ms = new MemoryStream();
             //image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
 
+            SeamCarving.LoadImage(new Bitmap(image));
             int[,] m;
-            var bitmap = SeamCarving.FindImageEnergy(image, EnergyFunction.Default, out m);
 
-            _imageForm.imageBox.Image = bitmap;
+            SeamCarving.FindImageEnergy(EnergyFunction.Default, out m);
 
-            var bitmapWithSeam = SeamCarving.FindSeam(bitmap, m);
-            _imageForm.imageBox.Image = bitmapWithSeam;
+            var seam = SeamCarving.FindSeamVertical(m);
+
+            SeamCarving.RemoveVerticalSeam(seam);
+            //var newBitmap = SeamCarving.ToImage();
+            //_imageForm.imageBox.Image = newBitmap;
+            //_imageForm.imageBox.Width = newBitmap.Width;
+            //_imageForm.imageBox.Height = newBitmap.Height;
+            //ImageHeightNumeric.Value = newBitmap.Height;
+            //ImageWidthNumeric.Value = newBitmap.Width;
         }
-
-        
 
         public void EnableImageControls()
         {

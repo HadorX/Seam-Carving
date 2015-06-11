@@ -14,6 +14,8 @@ public class LockBitmap
     public int Width { get; private set; }
     public int Height { get; private set; }
 
+    private int ColorCount { get; set; }
+
     public LockBitmap(Bitmap source)
     {
         this.source = source;
@@ -38,7 +40,7 @@ public class LockBitmap
 
             // get source bitmap pixel format size
             Depth = System.Drawing.Image.GetPixelFormatSize(source.PixelFormat);
-
+            ColorCount = Depth/8;
             // Check if bpp (Bits Per Pixel) is 8, 24, or 32
             if (Depth != 8 && Depth != 24 && Depth != 32)
             {
@@ -90,32 +92,32 @@ public class LockBitmap
     /// <returns></returns>
     public Color GetPixel(int x, int y)
     {
+        
         Color clr = Color.Empty;
 
         // Get color components count
-        int cCount = Depth / 8;
+        //int cCount = ColorCount;
 
         // Get start index of the specified pixel
-        int i = ((y * Width) + x) * cCount;
+        int i = ((y * Width) + x) * ColorCount;
 
-        if (i > Pixels.Length - cCount || i < 0)
+        if (i > Pixels.Length - ColorCount || i < 0)
             return new Color();
-            //throw new IndexOutOfRangeException();
 
         if (Depth == 32) // For 32 bpp get Red, Green, Blue and Alpha
         {
-            byte b = Pixels[i];
-            byte g = Pixels[i + 1];
-            byte r = Pixels[i + 2];
-            byte a = Pixels[i + 3]; // a
-            clr = Color.FromArgb(a, r, g, b);
+            //byte b = Pixels[i];
+            //byte g = Pixels[i + 1];
+            //byte r = Pixels[i + 2];
+            //byte a = Pixels[i + 3]; // a
+            clr = Color.FromArgb(Pixels[i+3], Pixels[i+2], Pixels[i+1], Pixels[i]);
         }
         if (Depth == 24) // For 24 bpp get Red, Green and Blue
         {
-            byte b = Pixels[i];
-            byte g = Pixels[i + 1];
-            byte r = Pixels[i + 2];
-            clr = Color.FromArgb(r, g, b);
+            //byte b = Pixels[i];
+            //byte g = Pixels[i + 1];
+            //byte r = Pixels[i + 2];
+            clr = Color.FromArgb(Pixels[i + 2], Pixels[i + 1], Pixels[i]);
         }
         if (Depth == 8)
         // For 8 bpp get color value (Red, Green and Blue values are the same)
@@ -123,6 +125,7 @@ public class LockBitmap
             byte c = Pixels[i];
             clr = Color.FromArgb(c, c, c);
         }
+        
         return clr;
     }
 
