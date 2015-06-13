@@ -40,9 +40,13 @@
             this.SettingsGroupBox = new System.Windows.Forms.GroupBox();
             this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.ProgressBar = new System.Windows.Forms.ProgressBar();
+            this.label3 = new System.Windows.Forms.Label();
+            this.AverageEnergyLabel = new System.Windows.Forms.Label();
             this.ResizeGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ImageWidthNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ImageHeightNumeric)).BeginInit();
+            this.SettingsGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // LoadButton
@@ -152,6 +156,7 @@
             this.SetWidthButton.TabIndex = 1;
             this.SetWidthButton.Text = "Process";
             this.SetWidthButton.UseVisualStyleBackColor = true;
+            this.SetWidthButton.Click += new System.EventHandler(this.SetWidthButton_Click);
             // 
             // SetHeightButton
             // 
@@ -164,18 +169,46 @@
             // 
             // SettingsGroupBox
             // 
+            this.SettingsGroupBox.Controls.Add(this.AverageEnergyLabel);
+            this.SettingsGroupBox.Controls.Add(this.label3);
             this.SettingsGroupBox.Location = new System.Drawing.Point(13, 228);
             this.SettingsGroupBox.Name = "SettingsGroupBox";
-            this.SettingsGroupBox.Size = new System.Drawing.Size(348, 393);
+            this.SettingsGroupBox.Size = new System.Drawing.Size(348, 368);
             this.SettingsGroupBox.TabIndex = 3;
             this.SettingsGroupBox.TabStop = false;
             this.SettingsGroupBox.Text = "Settings";
+            // 
+            // ProgressBar
+            // 
+            this.ProgressBar.Location = new System.Drawing.Point(13, 598);
+            this.ProgressBar.Name = "ProgressBar";
+            this.ProgressBar.Size = new System.Drawing.Size(348, 23);
+            this.ProgressBar.TabIndex = 4;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 345);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(155, 17);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Average image energy:";
+            // 
+            // AverageEnergyLabel
+            // 
+            this.AverageEnergyLabel.AutoSize = true;
+            this.AverageEnergyLabel.Location = new System.Drawing.Point(201, 344);
+            this.AverageEnergyLabel.Name = "AverageEnergyLabel";
+            this.AverageEnergyLabel.Size = new System.Drawing.Size(13, 17);
+            this.AverageEnergyLabel.TabIndex = 1;
+            this.AverageEnergyLabel.Text = "-";
             // 
             // ControlForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(379, 633);
+            this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.SettingsGroupBox);
             this.Controls.Add(this.ResizeGroupBox);
             this.Controls.Add(this.SaveButton);
@@ -188,6 +221,8 @@
             this.ResizeGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ImageWidthNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ImageHeightNumeric)).EndInit();
+            this.SettingsGroupBox.ResumeLayout(false);
+            this.SettingsGroupBox.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -206,6 +241,9 @@
         private System.Windows.Forms.GroupBox SettingsGroupBox;
         private System.Windows.Forms.OpenFileDialog OpenFileDialog;
         private System.Windows.Forms.SaveFileDialog SaveFileDialog;
+        private System.Windows.Forms.ProgressBar ProgressBar;
+        private System.Windows.Forms.Label AverageEnergyLabel;
+        private System.Windows.Forms.Label label3;
     }
 }
 

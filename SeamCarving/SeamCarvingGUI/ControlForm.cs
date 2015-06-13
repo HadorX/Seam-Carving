@@ -17,6 +17,7 @@ namespace SeamCarvingGUI
             InitializeComponent();
         }
 
+        //MOZNA DODAC WARTOSC SREDNIA ENERGII W OBRAZIE I POKAZAC ZE Z USUWANIE SEAMOW SIE PODNOSI
         private void LoadButton_Click(object sender, EventArgs e)
         {
             var result = OpenFileDialog.ShowDialog();
@@ -39,19 +40,9 @@ namespace SeamCarvingGUI
             //image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
 
             SeamCarving.LoadImage(new Bitmap(image));
-            int[,] m;
+            
 
-            SeamCarving.FindImageEnergy(EnergyFunction.Default, out m);
-
-            var seam = SeamCarving.FindSeamVertical(m);
-
-            SeamCarving.RemoveVerticalSeam(seam);
-            //var newBitmap = SeamCarving.ToImage();
-            //_imageForm.imageBox.Image = newBitmap;
-            //_imageForm.imageBox.Width = newBitmap.Width;
-            //_imageForm.imageBox.Height = newBitmap.Height;
-            //ImageHeightNumeric.Value = newBitmap.Height;
-            //ImageWidthNumeric.Value = newBitmap.Width;
+            
         }
 
         public void EnableImageControls()
@@ -75,6 +66,37 @@ namespace SeamCarvingGUI
             _imageForm.imageBox.Image.Save(SaveFileDialog.FileName);
         }
 
+        private void SetWidthButton_Click(object sender, EventArgs e)
+        {
+            var widthDiff = _imageForm.imageBox.Width - ImageWidthNumeric.Value;
 
+            int[,] m = new int[Width,Height];
+            double avgEnergy;
+
+            m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy);
+            AverageEnergyLabel.Text = avgEnergy.ToString("F2");
+
+            for (int i = 0; i < widthDiff; i++)
+            {
+
+                ProgressBar.Value = (int)((i*100)/widthDiff);
+                
+                var seam = SeamCarving.FindSeamVertical(m);
+
+                m = SeamCarving.RemoveVerticalSeam(seam, m);
+            }
+
+            var newBitmap = SeamCarving.ToImage();
+
+            SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy);
+            AverageEnergyLabel.Text = avgEnergy.ToString("F2");
+
+            _imageForm.imageBox.Image = newBitmap;
+            _imageForm.imageBox.Width = newBitmap.Width;
+            _imageForm.imageBox.Height = newBitmap.Height;
+            ImageHeightNumeric.Value = newBitmap.Height;
+            ImageWidthNumeric.Value = newBitmap.Width;
+            ProgressBar.Value = 100;
+        }
     }
 }

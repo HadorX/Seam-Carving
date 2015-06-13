@@ -76,7 +76,7 @@ namespace SeamCarvingCore
             return result;
         }
 
-        public static void FindImageEnergy(EnergyFunction energyFunction, out int[,] m)
+        public static int[,] FindImageEnergy(EnergyFunction energyFunction, out double avgEnergy)
         {
             //var bitmapPost = new Bitmap(Width, Height);
 
@@ -85,8 +85,8 @@ namespace SeamCarvingCore
             //lockBitmapPost.LockBits();
 
             int red, green, blue;
-            m = new int[Width, Height];
-
+            var m = new int[Width, Height];
+            avgEnergy = 0;
 
             for (int i = 0; i < Width; i++)
             {
@@ -100,12 +100,15 @@ namespace SeamCarvingCore
                     blue = Clamp(blue, 0, 255);
                     var intensity = (red + green + blue) / 3;
                     m[i, j] = intensity;
+                    avgEnergy += intensity;
                     //lockBitmapPost.SetPixel(i,j, Color.FromArgb(intensity, intensity, intensity));
                 }
             }
 
             //lockBitmapPost.UnlockBits();
             //return bitmapPost;
+            avgEnergy = avgEnergy/(Width*Height);
+            return m;
         }
 
         private static int GetPixelData(int x, int y, int color)
@@ -120,11 +123,12 @@ namespace SeamCarvingCore
             return (value < min) ? min : (value > max) ? max : value;
         }
 
-        public static void RemoveVerticalSeam(int[] seam)
+
+        public static int[,] RemoveVerticalSeam(int[] seam, int[,] m)
         {
             Width--;
             var newPixelData = new int[Width, Height, 3];
-
+            var m2 = new int[Width,Height];
             for (int j = 0; j < Height; j++)
             {
                 for (int i = 0; i < Width; i++)
@@ -134,37 +138,54 @@ namespace SeamCarvingCore
                         newPixelData[i, j, 0] = Pixels[i + 1, j, 0];
                         newPixelData[i, j, 1] = Pixels[i + 1, j, 1];
                         newPixelData[i, j, 2] = Pixels[i + 1, j, 2];
+                        m2[i, j] = m[i + 1, j];
                     }
                     else
                     {
                         newPixelData[i, j, 0] = Pixels[i, j, 0];
                         newPixelData[i, j, 1] = Pixels[i, j, 1];
                         newPixelData[i, j, 2] = Pixels[i, j, 2];
+                        m2[i, j] = m[i, j];
                     }
                 }
             }
             Pixels = newPixelData;
+            return m2;
         }
 
         public static Bitmap ToImage()
         {
-            throw new NotImplementedException();
-            int[] bytes = new int[Width * Height * 3];
+            //throw new NotImplementedException();
+            //int[] bytes = new int[Width * Height * 3];
 
-            for (int i = 0; i < Height; i++)
+            //for (int i = 0; i < Height; i++)
+            //{
+            //    for (int j = 0; j < Width; j++)
+            //    {
+            //        bytes[3 * j + i * Width] = Pixels[j, i, 0];
+            //        bytes[3 * j + i * Width + 1] = Pixels[j, i, 1];
+            //        bytes[3 * j + i * Width + 2] = Pixels[j, i, 2];
+            //    }
+            //}
+
+            //var img = Image.FromStream(new MemoryStream());
+
+
+            //return null;
+
+            Bitmap bmp = new Bitmap(Width, Height);
+            LockBitmap bmpData = new LockBitmap(bmp);
+            bmpData.LockBits();
+
+            for (int i = 0; i < Width; i++)
             {
-                for (int j = 0; j < Width; j++)
+                for (int j = 0; j < Height; j++)
                 {
-                    bytes[3 * j + i * Width] = Pixels[j, i, 0];
-                    bytes[3 * j + i * Width + 1] = Pixels[j, i, 1];
-                    bytes[3 * j + i * Width + 2] = Pixels[j, i, 2];
+                    bmpData.SetPixel(i, j, Color.FromArgb(Pixels[i, j, 0], Pixels[i, j, 1], Pixels[i, j, 2]));
                 }
             }
-
-            var img = Image.FromStream(new MemoryStream());
-
-
-            return null;
+            bmpData.UnlockBits();
+            return bmp;
         }
     }
 }
