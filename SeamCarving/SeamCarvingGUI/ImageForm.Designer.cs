@@ -37,7 +37,7 @@
             this.imageBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.imageBox.Location = new System.Drawing.Point(0, 0);
             this.imageBox.Name = "imageBox";
-            this.imageBox.Size = new System.Drawing.Size(736, 547);
+            this.imageBox.Size = new System.Drawing.Size(160, 53);
             this.imageBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.imageBox.TabIndex = 0;
             this.imageBox.TabStop = false;
@@ -48,7 +48,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(736, 547);
+            this.ClientSize = new System.Drawing.Size(160, 53);
             this.Controls.Add(this.imageBox);
             this.MaximizeBox = false;
             this.Name = "ImageForm";

@@ -48,6 +48,7 @@ namespace SeamCarvingCore
 
             var min = int.MaxValue;
             var index = 0;
+            
             for (int i = 0; i < width; i++)
             {
                 if (m[i, height - 1] < min)
@@ -76,36 +77,49 @@ namespace SeamCarvingCore
             return result;
         }
 
-        public static int[,] FindImageEnergy(EnergyFunction energyFunction, out double avgEnergy)
+        public static int[,] FindImageEnergy(EnergyFunction energyFunction, out double avgEnergy, out Bitmap bmp)
         {
-            //var bitmapPost = new Bitmap(Width, Height);
+            bmp = new Bitmap(Width, Height);
 
-            //var lockBitmapPost = new LockBitmap(bitmapPost);
+            var lockBitmapPost = new LockBitmap(bmp);
 
-            //lockBitmapPost.LockBits();
+            lockBitmapPost.LockBits();
 
             int red, green, blue;
             var m = new int[Width, Height];
             avgEnergy = 0;
 
+            var maxIntensity = 0;
             for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    red = 4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0);
-                    green = 4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1);
-                    blue = 4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2);
-                    red = Clamp(red, 0, 255);
-                    green = Clamp(green, 0, 255);
-                    blue = Clamp(blue, 0, 255);
-                    var intensity = (red + green + blue) / 3;
+                    red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
+                    green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
+                    blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
+                    //red = Clamp(red, 0, 255);
+                    //green = Clamp(green, 0, 255);
+                    //blue = Clamp(blue, 0, 255);
+                    var intensity = red*red + green*green + blue*blue;
                     m[i, j] = intensity;
                     avgEnergy += intensity;
-                    //lockBitmapPost.SetPixel(i,j, Color.FromArgb(intensity, intensity, intensity));
+                    if (intensity > maxIntensity)
+                        maxIntensity = intensity;
+                    
                 }
             }
 
-            //lockBitmapPost.UnlockBits();
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                {
+                    var intensity = (int)(((double)m[i, j]/maxIntensity)*255);
+                    lockBitmapPost.SetPixel(i, j, Color.FromArgb(intensity, intensity, intensity));
+                }
+            }
+
+            lockBitmapPost.UnlockBits();
+
             //return bitmapPost;
             avgEnergy = avgEnergy/(Width*Height);
             return m;

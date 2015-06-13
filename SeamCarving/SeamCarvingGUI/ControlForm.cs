@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
@@ -40,9 +41,11 @@ namespace SeamCarvingGUI
             //image.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
 
             SeamCarving.LoadImage(new Bitmap(image));
-            
 
-            
+            //double avgEnergy;
+            //Bitmap bmp;
+            //SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+            //_imageForm.imageBox.Image = bmp;
         }
 
         public void EnableImageControls()
@@ -73,12 +76,13 @@ namespace SeamCarvingGUI
             int[,] m = new int[Width,Height];
             double avgEnergy;
 
-            m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy);
-            AverageEnergyLabel.Text = avgEnergy.ToString("F2");
+            Bitmap bmp;
+
 
             for (int i = 0; i < widthDiff; i++)
             {
-
+                m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                AverageEnergyLabel.Text = avgEnergy.ToString("F2");
                 ProgressBar.Value = (int)((i*100)/widthDiff);
                 
                 var seam = SeamCarving.FindSeamVertical(m);
@@ -88,7 +92,7 @@ namespace SeamCarvingGUI
 
             var newBitmap = SeamCarving.ToImage();
 
-            SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy);
+            SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
             AverageEnergyLabel.Text = avgEnergy.ToString("F2");
 
             _imageForm.imageBox.Image = newBitmap;
