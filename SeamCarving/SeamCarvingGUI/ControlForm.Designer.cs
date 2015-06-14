@@ -38,11 +38,11 @@
             this.SetWidthButton = new System.Windows.Forms.Button();
             this.SetHeightButton = new System.Windows.Forms.Button();
             this.SettingsGroupBox = new System.Windows.Forms.GroupBox();
+            this.AverageEnergyLabel = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
             this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.ProgressBar = new System.Windows.Forms.ProgressBar();
-            this.label3 = new System.Windows.Forms.Label();
-            this.AverageEnergyLabel = new System.Windows.Forms.Label();
             this.ResizeGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ImageWidthNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ImageHeightNumeric)).BeginInit();
@@ -166,6 +166,7 @@
             this.SetHeightButton.TabIndex = 0;
             this.SetHeightButton.Text = "Process";
             this.SetHeightButton.UseVisualStyleBackColor = true;
+            this.SetHeightButton.Click += new System.EventHandler(this.SetHeightButton_Click);
             // 
             // SettingsGroupBox
             // 
@@ -178,12 +179,14 @@
             this.SettingsGroupBox.TabStop = false;
             this.SettingsGroupBox.Text = "Settings";
             // 
-            // ProgressBar
+            // AverageEnergyLabel
             // 
-            this.ProgressBar.Location = new System.Drawing.Point(13, 598);
-            this.ProgressBar.Name = "ProgressBar";
-            this.ProgressBar.Size = new System.Drawing.Size(348, 23);
-            this.ProgressBar.TabIndex = 4;
+            this.AverageEnergyLabel.AutoSize = true;
+            this.AverageEnergyLabel.Location = new System.Drawing.Point(201, 344);
+            this.AverageEnergyLabel.Name = "AverageEnergyLabel";
+            this.AverageEnergyLabel.Size = new System.Drawing.Size(13, 17);
+            this.AverageEnergyLabel.TabIndex = 1;
+            this.AverageEnergyLabel.Text = "-";
             // 
             // label3
             // 
@@ -194,14 +197,12 @@
             this.label3.TabIndex = 0;
             this.label3.Text = "Average image energy:";
             // 
-            // AverageEnergyLabel
+            // ProgressBar
             // 
-            this.AverageEnergyLabel.AutoSize = true;
-            this.AverageEnergyLabel.Location = new System.Drawing.Point(201, 344);
-            this.AverageEnergyLabel.Name = "AverageEnergyLabel";
-            this.AverageEnergyLabel.Size = new System.Drawing.Size(13, 17);
-            this.AverageEnergyLabel.TabIndex = 1;
-            this.AverageEnergyLabel.Text = "-";
+            this.ProgressBar.Location = new System.Drawing.Point(13, 598);
+            this.ProgressBar.Name = "ProgressBar";
+            this.ProgressBar.Size = new System.Drawing.Size(348, 23);
+            this.ProgressBar.TabIndex = 4;
             // 
             // ControlForm
             // 
