@@ -40,13 +40,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Default.cs" />
     <Compile Include="EnergyFunction.cs" />
     <Compile Include="EnergyFunctionBase.cs" />
     <Compile Include="LockBitmap.cs" />
     <Compile Include="Prewitt.cs" />
     <Compile Include="PrewittSlanting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RobertsCross.cs" />
     <Compile Include="SeamCarving.cs" />
+    <Compile Include="Sobel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

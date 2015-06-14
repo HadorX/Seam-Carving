@@ -170,13 +170,12 @@ namespace SeamCarvingCore
         //    return seamList;
         //}
 
-        public static int[,] FindImageEnergy(EnergyFunction energyFunction, out double avgEnergy, out Bitmap bmp)
+        public static int[,] FindImageEnergy(EnergyFunctionBase energyFunction, out double avgEnergy, out Bitmap bmp)
         {
-            var energy = new Prewitt();
-            energy.ComputeEnergy(Width, Height, Pixels);
-            bmp = ToImage(energy.Energy);
-            avgEnergy = energy.AvgEnergy;
-            return energy.Energy;
+            energyFunction.ComputeEnergy(Width, Height, Pixels);
+            bmp = ToImage(energyFunction.Energy);
+            avgEnergy = energyFunction.AvgEnergy;
+            return energyFunction.Energy;
             bmp = new Bitmap(Width, Height);
 
             var lockBitmapPost = new LockBitmap(bmp);

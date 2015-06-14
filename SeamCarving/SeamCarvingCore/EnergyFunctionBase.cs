@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SeamCarvingCore
 {
-    abstract class EnergyFunctionBase
+    abstract public  class EnergyFunctionBase
     {
         public int[,] Energy;
 

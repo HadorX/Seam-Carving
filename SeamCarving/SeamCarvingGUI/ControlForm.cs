@@ -17,6 +17,7 @@ namespace SeamCarvingGUI
         public ControlForm()
         {
             InitializeComponent();
+            algorithmDropDown.SelectedIndex = 0;
         }
 
         //MOZNA DODAC WARTOSC SREDNIA ENERGII W OBRAZIE I POKAZAC ZE Z USUWANIE SEAMOW SIE PODNOSI
@@ -45,9 +46,9 @@ namespace SeamCarvingGUI
 
             double avgEnergy;
             Bitmap bmp;
-            SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+            SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
             AverageEnergyLabel.Text = avgEnergy.ToString("F2");
-            _imageForm.imageBox.Image = bmp;
+            //_imageForm.imageBox.Image = bmp;
         }
 
         public void EnableImageControls()
@@ -81,6 +82,7 @@ namespace SeamCarvingGUI
             _imageForm.imageBox.Image = bmp;
         }
 
+
         private void SetWidthButton_Click(object sender, EventArgs e)
         {
             var widthDiff = _imageForm.imageBox.Width - ImageWidthNumeric.Value;
@@ -96,7 +98,7 @@ namespace SeamCarvingGUI
                 var seamList = new List<int[]>();
                 for (int i = 0; i < -widthDiff; i++)
                 {
-                    m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                    m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
                     
                     ProgressBar.Value = (int)((i * 100) / -widthDiff);
 
@@ -106,7 +108,7 @@ namespace SeamCarvingGUI
                 }
 
                 SeamCarving.LoadImage(new Bitmap(_imageForm.imageBox.Image));
-                m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
                 for (int i = 0; i < seamList.Count; i++)
                 {
                     var seam = seamList[i];
@@ -129,7 +131,7 @@ namespace SeamCarvingGUI
             {
                 for (int i = 0; i < widthDiff; i++)
                 {
-                    m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                    m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
                     ProgressBar.Value = (int)((i * 100) / widthDiff);
 
                     var seam = SeamCarving.FindSeamVertical(m);
@@ -141,7 +143,7 @@ namespace SeamCarvingGUI
 
             var newBitmap = SeamCarving.ToImage();
 
-            SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+            SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
             AverageEnergyLabel.Text = avgEnergy.ToString("F2");
 
             if (update)
@@ -171,7 +173,7 @@ namespace SeamCarvingGUI
                 var seamList = new List<int[]>();
                 for (int i = 0; i < -heightDiff; i++)
                 {
-                    m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                    m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
 
                     ProgressBar.Value = (int)((i * 100) / -heightDiff);
 
@@ -181,7 +183,7 @@ namespace SeamCarvingGUI
                 }
 
                 SeamCarving.LoadImage(new Bitmap(_imageForm.imageBox.Image));
-                m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
                 for (int i = 0; i < seamList.Count; i++)
                 {
                     var seam = seamList[i];
@@ -204,7 +206,7 @@ namespace SeamCarvingGUI
             {
                 for (int i = 0; i < heightDiff; i++)
                 {
-                    m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                    m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
                     ProgressBar.Value = (int)((i * 100) / heightDiff);
 
                     var seam = SeamCarving.FindSeamHorizontal(m);
@@ -216,7 +218,7 @@ namespace SeamCarvingGUI
 
             var newBitmap = SeamCarving.ToImage();
 
-            SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+            SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
             AverageEnergyLabel.Text = avgEnergy.ToString("F2");
 
             _imageForm.imageBox.Image = newBitmap;
@@ -225,6 +227,35 @@ namespace SeamCarvingGUI
             ImageHeightNumeric.Value = newBitmap.Height;
             ImageWidthNumeric.Value = newBitmap.Width;
             ProgressBar.Value = 100;
+        }
+
+        private EnergyFunctionBase GetEnergyAlgorithm()
+        {
+            EnergyFunctionBase function;
+            switch (algorithmDropDown.SelectedIndex)
+            {
+                case 1:
+                    function = new Sobel();
+                    break;
+                case 2:
+                    function = new Prewitt();
+                    break;
+                case 3:
+                    function = new PrewittSlanting();
+                    break;
+                case 4:
+                    function = new Default();
+                    break;
+                default:
+                    function = new RobertsCross();
+                    break;
+            }
+            return function;
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

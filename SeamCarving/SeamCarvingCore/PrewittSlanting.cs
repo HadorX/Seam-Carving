@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SeamCarvingCore
 {
-    class PrewittSlanting : EnergyFunctionBase
+    public class PrewittSlanting : EnergyFunctionBase
     {
 
         protected override int GetPixelEnergy(int x, int y)
@@ -24,8 +24,10 @@ namespace SeamCarvingCore
 
             int xPrewitt = pixels[2] + pixels[4] + pixels[7] - pixels[0] - pixels[3] - pixels[5];
             int yPrewitt = pixels[5] + pixels[6] + pixels[7] - pixels[0] - pixels[1] - pixels[2];
+            int rlPrewitt = pixels[1] + pixels[2] + pixels[4] - pixels[3] - pixels[5] - pixels[6];
+            int lrPrewitt = pixels[0] + pixels[1] + pixels[3] - pixels[4] - pixels[6] - pixels[7];
 
-            int prewitt = Math.Abs(xPrewitt) + Math.Abs(yPrewitt);
+            int prewitt = Math.Abs(xPrewitt) + Math.Abs(yPrewitt) + Math.Abs(rlPrewitt) + Math.Abs(lrPrewitt);
 
 
             if (prewitt > 255)

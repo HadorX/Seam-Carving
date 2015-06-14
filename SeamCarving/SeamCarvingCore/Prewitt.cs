@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SeamCarvingCore
 {
-    class Prewitt : EnergyFunctionBase
+    public class Prewitt : EnergyFunctionBase
     {
 
         protected override int GetPixelEnergy(int x, int y)
