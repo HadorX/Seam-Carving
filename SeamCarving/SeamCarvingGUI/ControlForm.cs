@@ -129,14 +129,16 @@ namespace SeamCarvingGUI
             }
             else
             {
+                //m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
+                
                 for (int i = 0; i < widthDiff; i++)
                 {
                     m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
                     ProgressBar.Value = (int)((i * 100) / widthDiff);
-
                     var seam = SeamCarving.FindSeamVertical(m);
                     
                     m = SeamCarving.RemoveVerticalSeam(seam, m);
+                   // m = SeamCarving.UpdateImageEnergyVerticalSeam(EnergyFunction.Default, m, seam);
                 }
             }
             
@@ -204,6 +206,7 @@ namespace SeamCarvingGUI
             }
             else
             {
+                //m = SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
                 for (int i = 0; i < heightDiff; i++)
                 {
                     m = SeamCarving.FindImageEnergy(GetEnergyAlgorithm(), out avgEnergy, out bmp);
@@ -212,6 +215,7 @@ namespace SeamCarvingGUI
                     var seam = SeamCarving.FindSeamHorizontal(m);
 
                     m = SeamCarving.RemoveHorizontalSeam(seam, m);
+                    //m = SeamCarving.UpdateImageEnergyHorizontalSeam(EnergyFunction.Default, m, seam);
                 }
             }
 

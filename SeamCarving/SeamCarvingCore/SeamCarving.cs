@@ -22,9 +22,9 @@ namespace SeamCarvingCore
             Width = bits.Width;
             Height = bits.Height;
             Pixels = new int[Width, Height, 3];
-            for (int i = 0; i < bits.Width; i++)
+            for (var i = 0; i < bits.Width; i++)
             {
-                for (int j = 0; j < bits.Height; j++)
+                for (var j = 0; j < bits.Height; j++)
                 {
                     var color = bits.GetPixel(i, j);
                     Pixels[i, j, 0] = color.R;
@@ -34,37 +34,65 @@ namespace SeamCarvingCore
             }
         }
 
+        public static Bitmap ResizeImage(Image image, int width, int height)
+        {
+            return new Bitmap(image, width, height);
+        }
+
+        public static Bitmap CropImage(Image image, int width, int height)
+        {
+            var cropRect = new Rectangle(0, 0, width, height);
+            var src = image as Bitmap;
+            var target = new Bitmap(cropRect.Width, cropRect.Height);
+
+            using (var g = Graphics.FromImage(target))
+            {
+                g.DrawImage(src, new Rectangle(0, 0, target.Width, target.Height),
+                                 cropRect,
+                                 GraphicsUnit.Pixel);
+            }
+            return target;
+        }
+
         public static int[] FindSeamVertical(int[,] m)
         {
             var height = m.GetLength(1);
             var width = m.GetLength(0);
             var result = new int[height];
-            for (int i = 1; i < height; i++)
+
+            var mCopy = new int[width, height];
+
+            for (var i = 0; i < width; i++)
             {
-                for (int j = 0; j < width; j++)
+                mCopy[i, 0] = m[i, 0];
+            }
+
+            for (var i = 1; i < height; i++)
+            {
+                for (var j = 0; j < width; j++)
                 {
-                    m[j, i] = m[j, i] + new[] { j - 1 < 0 ? int.MaxValue : m[j - 1, i - 1], m[j, i - 1], j + 1 >= width ? int.MaxValue : m[j + 1, i - 1] }.Min();
+                    mCopy[j, i] = m[j, i] + new[] { j - 1 < 0 ? int.MaxValue : mCopy[j - 1, i - 1], mCopy[j, i - 1], j + 1 >= width ? int.MaxValue : mCopy[j + 1, i - 1] }.Min();
                 }
             }
 
             var min = int.MaxValue;
             var index = -1;
 
-            for (int i = 0; i < width; i++)
+            for (var i = 0; i < width; i++)
             {
-                if (m[i, height - 1] < min)
+                if (mCopy[i, height - 1] < min)
                 {
-                    min = m[i, height - 1];
+                    min = mCopy[i, height - 1];
                     index = i;
                 }
             }
             result[height - 1] = index;
 
-            for (int i = height - 2; i >= 0; i--)
+            for (var i = height - 2; i >= 0; i--)
             {
-                var int1 = index == 0 ? int.MaxValue : m[index - 1, i];
-                var int2 = m[index, i];
-                var int3 = index == width - 1 ? int.MaxValue : m[index + 1, i];
+                var int1 = index == 0 ? int.MaxValue : mCopy[index - 1, i];
+                var int2 = mCopy[index, i];
+                var int3 = index == width - 1 ? int.MaxValue : mCopy[index + 1, i];
 
                 var array = new[] { int1, int2, int3 };
                 var minimum = array.Min();
@@ -84,32 +112,39 @@ namespace SeamCarvingCore
             var height = m.GetLength(1);
             var width = m.GetLength(0);
             var result = new int[width];
-            for (int i = 1; i < width; i++)
+            var mCopy = new int[width, height];
+
+            for (var i = 0; i < height; i++)
             {
-                for (int j = 0; j < height; j++)
+                mCopy[0, i] = m[0, i];
+            }
+
+            for (var i = 1; i < width; i++)
+            {
+                for (var j = 0; j < height; j++)
                 {
-                    m[i, j] = m[i, j] + new[] { j - 1 < 0 ? int.MaxValue : m[i - 1, j - 1], m[i - 1, j], j + 1 >= height ? int.MaxValue : m[i - 1, j + 1] }.Min();
+                    mCopy[i, j] = m[i, j] + new[] { j - 1 < 0 ? int.MaxValue : mCopy[i - 1, j - 1], mCopy[i - 1, j], j + 1 >= height ? int.MaxValue : mCopy[i - 1, j + 1] }.Min();
                 }
             }
 
             var min = int.MaxValue;
             var index = 0;
 
-            for (int i = 0; i < height; i++)
+            for (var i = 0; i < height; i++)
             {
-                if (m[width - 1, i] < min)
+                if (mCopy[width - 1, i] < min)
                 {
-                    min = m[width - 1, i];
+                    min = mCopy[width - 1, i];
                     index = i;
                 }
             }
             result[width - 1] = index;
 
-            for (int i = width - 2; i >= 0; i--)
+            for (var i = width - 2; i >= 0; i--)
             {
-                var int1 = index == 0 ? int.MaxValue : m[i, index - 1];
-                var int2 = m[i, index];
-                var int3 = index == height - 1 ? int.MaxValue : m[i, index + 1];
+                var int1 = index == 0 ? int.MaxValue : mCopy[i, index - 1];
+                var int2 = mCopy[i, index];
+                var int3 = index == height - 1 ? int.MaxValue : mCopy[i, index + 1];
 
                 var array = new[] { int1, int2, int3 };
                 var minimum = array.Min();
@@ -124,11 +159,11 @@ namespace SeamCarvingCore
             return result;
         }
 
-        //public static List<int[]> FindSeamsVertical(int[,] m, int n)
+        //public static List<int[]> FindSeamsVertical(int[,] mCopy, int n)
         //{
         //    var seamList = new List<int[]>(n);
-        //    var height = m.GetLength(1);
-        //    var width = m.GetLength(0);
+        //    var height = mCopy.GetLength(1);
+        //    var width = mCopy.GetLength(0);
 
         //    for (int k = 0; k < n; k++)
         //    {
@@ -139,20 +174,20 @@ namespace SeamCarvingCore
 
         //        for (int i = 0; i < width; i++)
         //        {
-        //            if (m[i, height - 1] < min)
+        //            if (mCopy[i, height - 1] < min)
         //            {
-        //                min = m[i, height - 1];
+        //                min = mCopy[i, height - 1];
         //                index = i;
         //            }
         //        }
         //        result[height - 1] = index;
-        //        m[index, height - 1] = int.MaxValue;
+        //        mCopy[index, height - 1] = int.MaxValue;
 
         //        for (int i = height - 2; i >= 0; i--)
         //        {
-        //            var int1 = index == 0 ? int.MaxValue : m[index - 1, i];
-        //            var int2 = m[index, i];
-        //            var int3 = index == width - 1 ? int.MaxValue : m[index + 1, i];
+        //            var int1 = index == 0 ? int.MaxValue : mCopy[index - 1, i];
+        //            var int2 = mCopy[index, i];
+        //            var int3 = index == width - 1 ? int.MaxValue : mCopy[index + 1, i];
 
         //            var array = new[] { int1, int2, int3 };
         //            var minimum = array.Min();
@@ -162,7 +197,7 @@ namespace SeamCarvingCore
         //                index++;
 
         //            result[i] = index;
-        //            m[index, i] = int.MaxValue;
+        //            mCopy[index, i] = int.MaxValue;
         //        }
         //        seamList.Add(result);
         //    }
@@ -178,24 +213,24 @@ namespace SeamCarvingCore
             return energyFunction.Energy;
             bmp = new Bitmap(Width, Height);
 
-            var lockBitmapPost = new LockBitmap(bmp);
+            //var lockBitmapPost = new LockBitmap(bmp);
 
-            lockBitmapPost.LockBits();
+            //lockBitmapPost.LockBits();
 
             int red, green, blue;
             var m = new int[Width, Height];
             avgEnergy = 0;
 
             var maxIntensity = 0;
-            for (int i = 0; i < Width; i++)
+            for (var i = 0; i < Width; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (var j = 0; j < Height; j++)
                 {
                     red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
                     green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
                     blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
 
-                    var intensity = red * red + green * green + blue * blue;
+                    var intensity = (red * red + green * green + blue * blue) / 5;
                     m[i, j] = intensity;
                     avgEnergy += intensity;
                     if (intensity > maxIntensity)
@@ -203,19 +238,66 @@ namespace SeamCarvingCore
                 }
             }
 
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    var intensity = (int)(((double)m[i, j] / maxIntensity) * 255);
-                    lockBitmapPost.SetPixel(i, j, Color.FromArgb(intensity, intensity, intensity));
-                }
-            }
+            //for (int i = 0; i < Width; i++)
+            //{
+            //    for (int j = 0; j < Height; j++)
+            //    {
+            //        var intensity = (int)(((double)mCopy[i, j] / maxIntensity) * 255);
+            //        lockBitmapPost.SetPixel(i, j, Color.FromArgb(intensity, intensity, intensity));
+            //    }
+            //}
 
-            lockBitmapPost.UnlockBits();
+            //lockBitmapPost.UnlockBits();
 
             //return bitmapPost;
             avgEnergy = avgEnergy / (Width * Height);
+            return m;
+        }
+
+        public static int[,] UpdateImageEnergyVerticalSeam(EnergyFunction energyFunction, int[,] m, int[] seam)
+        {
+            int red, green, blue;
+            //var mCopy = new int[Width, Height];
+
+            for (var j = 0; j < Height; j++)
+            {
+                for (var i = Math.Max(0, seam[j] - 3); i < seam[j] + 3 && i < Width; i++)
+                //for (int i = 0;  i < Width; i++)
+                {
+                    var x = m[i, j];
+                    red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
+                    green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
+                    blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
+
+                    var intensity = (red * red + green * green + blue * blue) / 5;
+                    m[i, j] = intensity;
+                }
+            }
+
+            return m;
+        }
+
+        public static int[,] UpdateImageEnergyHorizontalSeam(EnergyFunction energyFunction, int[,] m, int[] seam)
+        {
+            int red, green, blue;
+            //var mCopy = new int[Width, Height];
+
+            for (var i = 0; i < Width; i++)
+            {
+                //for (int i = Math.Max(0, seam[j] - 3); i < seam[j] + 3 && i < Width; i++)
+                //for (int j = 0; j < Height; j++)
+                for (var j = Math.Max(0, seam[i] - 3); j < seam[i] + 3 && j < Height; j++)
+                {
+                    var x = m[i, j];
+                    red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
+                    green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
+                    blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
+
+                    var intensity = (red * red + green * green + blue * blue) / 5;
+                    m[i, j] = intensity;
+                }
+            }
+
             return m;
         }
 
@@ -237,9 +319,9 @@ namespace SeamCarvingCore
             Width--;
             var newPixelData = new int[Width, Height, 3];
             var m2 = new int[Width, Height];
-            for (int j = 0; j < Height; j++)
+            for (var j = 0; j < Height; j++)
             {
-                for (int i = 0; i < Width; i++)
+                for (var i = 0; i < Width; i++)
                 {
                     if (i >= seam[j])
                     {
@@ -266,23 +348,23 @@ namespace SeamCarvingCore
             Height--;
             var newPixelData = new int[Width, Height, 3];
             var m2 = new int[Width, Height];
-            for (int j = 0; j < Width; j++)
+            for (var j = 0; j < Width; j++)
             {
-                for (int i = 0; i < Height; i++)
+                for (var i = 0; i < Height; i++)
                 {
                     if (i >= seam[j])
                     {
                         newPixelData[j, i, 0] = Pixels[j, i + 1, 0];
                         newPixelData[j, i, 1] = Pixels[j, i + 1, 1];
                         newPixelData[j, i, 2] = Pixels[j, i + 1, 2];
-                        m2[j,i] = m[j, i + 1];
+                        m2[j, i] = m[j, i + 1];
                     }
                     else
                     {
                         newPixelData[j, i, 0] = Pixels[j, i, 0];
                         newPixelData[j, i, 1] = Pixels[j, i, 1];
                         newPixelData[j, i, 2] = Pixels[j, i, 2];
-                        m2[j,i] = m[j, i];
+                        m2[j, i] = m[j, i];
                     }
                 }
             }
@@ -295,9 +377,9 @@ namespace SeamCarvingCore
             Width++;
             var newPixelData = new int[Width, Height, 3];
             var m2 = new int[Width, Height];
-            for (int j = 0; j < Height; j++)
+            for (var j = 0; j < Height; j++)
             {
-                for (int i = 0; i < Width; i++)
+                for (var i = 0; i < Width; i++)
                 {
                     if (i > seam[j])
                     {
@@ -349,9 +431,9 @@ namespace SeamCarvingCore
             Height++;
             var newPixelData = new int[Width, Height, 3];
             var m2 = new int[Width, Height];
-            for (int j = 0; j < Width; j++)
+            for (var j = 0; j < Width; j++)
             {
-                for (int i = 0; i < Height; i++)
+                for (var i = 0; i < Height; i++)
                 {
                     if (i > seam[j])
                     {
@@ -418,13 +500,13 @@ namespace SeamCarvingCore
 
             //return null;
 
-            Bitmap bmp = new Bitmap(Width, Height);
-            LockBitmap bmpData = new LockBitmap(bmp);
+            var bmp = new Bitmap(Width, Height);
+            var bmpData = new LockBitmap(bmp);
             bmpData.LockBits();
 
-            for (int i = 0; i < Width; i++)
+            for (var i = 0; i < Width; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (var j = 0; j < Height; j++)
                 {
                     bmpData.SetPixel(i, j, Color.FromArgb(Pixels[i, j, 0], Pixels[i, j, 1], Pixels[i, j, 2]));
                 }
@@ -453,13 +535,13 @@ namespace SeamCarvingCore
 
             //return null;
 
-            Bitmap bmp = new Bitmap(Width, Height);
-            LockBitmap bmpData = new LockBitmap(bmp);
+            var bmp = new Bitmap(Width, Height);
+            var bmpData = new LockBitmap(bmp);
             bmpData.LockBits();
 
-            for (int i = 0; i < Width; i++)
+            for (var i = 0; i < Width; i++)
             {
-                for (int j = 0; j < Height; j++)
+                for (var j = 0; j < Height; j++)
                 {
                     bmpData.SetPixel(i, j, Color.FromArgb(energy[i, j], energy[i, j], energy[i, j]));
                 }
