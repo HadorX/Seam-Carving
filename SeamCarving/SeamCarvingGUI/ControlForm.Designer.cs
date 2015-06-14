@@ -230,7 +230,7 @@
             "Sobel",
             "Prewitt",
             "Prewitt Slanting",
-            "Default"});
+            "Laplacian"});
             this.algorithmDropDown.Location = new System.Drawing.Point(2, 15);
             this.algorithmDropDown.Name = "algorithmDropDown";
             this.algorithmDropDown.Size = new System.Drawing.Size(121, 21);

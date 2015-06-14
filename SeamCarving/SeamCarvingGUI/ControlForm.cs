@@ -248,7 +248,7 @@ namespace SeamCarvingGUI
                     function = new PrewittSlanting();
                     break;
                 case 4:
-                    function = new Default();
+                    function = new Laplacian();
                     break;
                 default:
                     function = new RobertsCross();

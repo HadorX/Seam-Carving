@@ -2,7 +2,7 @@
 
 namespace SeamCarvingCore
 {
-    public class Default :EnergyFunctionBase
+    public class Laplacian :EnergyFunctionBase
     {
 
         protected override int GetPixelEnergy(int x, int y)
