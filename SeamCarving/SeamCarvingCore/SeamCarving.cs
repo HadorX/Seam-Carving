@@ -56,7 +56,7 @@ namespace SeamCarvingCore
             }
 
             var min = int.MaxValue;
-            var index = 0;
+            var index = -1;
 
             for (int i = 0; i < width; i++)
             {
@@ -187,6 +187,11 @@ namespace SeamCarvingCore
 
         public static int[,] FindImageEnergy(EnergyFunction energyFunction, out double avgEnergy, out Bitmap bmp)
         {
+            var energy = new Prewitt();
+            energy.ComputeEnergy(Width, Height, Pixels);
+            bmp = ToImage(energy.Energy);
+            avgEnergy = energy.AvgEnergy;
+            return energy.Energy;
             bmp = new Bitmap(Width, Height);
 
             //var lockBitmapPost = new LockBitmap(bmp);
@@ -486,6 +491,41 @@ namespace SeamCarvingCore
                 for (int j = 0; j < Height; j++)
                 {
                     bmpData.SetPixel(i, j, Color.FromArgb(Pixels[i, j, 0], Pixels[i, j, 1], Pixels[i, j, 2]));
+                }
+            }
+            bmpData.UnlockBits();
+            return bmp;
+        }
+
+        public static Bitmap ToImage(int[,] energy)
+        {
+            //throw new NotImplementedException();
+            //int[] bytes = new int[Width * Height * 3];
+
+            //for (int i = 0; i < Height; i++)
+            //{
+            //    for (int j = 0; j < Width; j++)
+            //    {
+            //        bytes[3 * j + i * Width] = Pixels[j, i, 0];
+            //        bytes[3 * j + i * Width + 1] = Pixels[j, i, 1];
+            //        bytes[3 * j + i * Width + 2] = Pixels[j, i, 2];
+            //    }
+            //}
+
+            //var img = Image.FromStream(new MemoryStream());
+
+
+            //return null;
+
+            Bitmap bmp = new Bitmap(Width, Height);
+            LockBitmap bmpData = new LockBitmap(bmp);
+            bmpData.LockBits();
+
+            for (int i = 0; i < Width; i++)
+            {
+                for (int j = 0; j < Height; j++)
+                {
+                    bmpData.SetPixel(i, j, Color.FromArgb(energy[i, j], energy[i, j], energy[i, j]));
                 }
             }
             bmpData.UnlockBits();

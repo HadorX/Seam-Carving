@@ -41,7 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EnergyFunction.cs" />
+    <Compile Include="EnergyFunctionBase.cs" />
     <Compile Include="LockBitmap.cs" />
+    <Compile Include="Prewitt.cs" />
+    <Compile Include="PrewittSlanting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeamCarving.cs" />
   </ItemGroup>
