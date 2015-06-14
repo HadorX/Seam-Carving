@@ -40,9 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Default.cs" />
     <Compile Include="EnergyFunction.cs" />
     <Compile Include="EnergyFunctionBase.cs" />
+    <Compile Include="Laplacian.cs" />
     <Compile Include="LockBitmap.cs" />
     <Compile Include="Prewitt.cs" />
     <Compile Include="PrewittSlanting.cs" />

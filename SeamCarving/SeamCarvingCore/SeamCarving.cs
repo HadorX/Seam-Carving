@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
+﻿using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace SeamCarvingCore
 {
@@ -47,9 +42,10 @@ namespace SeamCarvingCore
 
             using (var g = Graphics.FromImage(target))
             {
-                g.DrawImage(src, new Rectangle(0, 0, target.Width, target.Height),
-                                 cropRect,
-                                 GraphicsUnit.Pixel);
+                if (src != null)
+                    g.DrawImage(src, new Rectangle(0, 0, target.Width, target.Height),
+                        cropRect,
+                        GraphicsUnit.Pixel);
             }
             return target;
         }
@@ -159,51 +155,25 @@ namespace SeamCarvingCore
             return result;
         }
 
-        //public static List<int[]> FindSeamsVertical(int[,] mCopy, int n)
-        //{
-        //    var seamList = new List<int[]>(n);
-        //    var height = mCopy.GetLength(1);
-        //    var width = mCopy.GetLength(0);
+        public static int[,] UpdateImageEnergyVerticalSeam(EnergyFunctionBase energyFunction, int[,] m, int[] seam,
+            out double avgEnergy, out Bitmap bmp)
+        {
+            energyFunction.Energy = m;
+            energyFunction.UpdateEnergyVerticalSeam(Width, Height, Pixels, seam);
+            bmp = ToImage(energyFunction.Energy);
+            avgEnergy = energyFunction.AvgEnergy;
+            return energyFunction.Energy;
+        }
 
-        //    for (int k = 0; k < n; k++)
-        //    {
-
-        //        var result = new int[height];
-        //        var min = int.MaxValue;
-        //        var index = 0;
-
-        //        for (int i = 0; i < width; i++)
-        //        {
-        //            if (mCopy[i, height - 1] < min)
-        //            {
-        //                min = mCopy[i, height - 1];
-        //                index = i;
-        //            }
-        //        }
-        //        result[height - 1] = index;
-        //        mCopy[index, height - 1] = int.MaxValue;
-
-        //        for (int i = height - 2; i >= 0; i--)
-        //        {
-        //            var int1 = index == 0 ? int.MaxValue : mCopy[index - 1, i];
-        //            var int2 = mCopy[index, i];
-        //            var int3 = index == width - 1 ? int.MaxValue : mCopy[index + 1, i];
-
-        //            var array = new[] { int1, int2, int3 };
-        //            var minimum = array.Min();
-        //            if (int1 == minimum && index > 0)
-        //                index--;
-        //            else if (int2 != minimum && int3 == minimum && index < width - 1)
-        //                index++;
-
-        //            result[i] = index;
-        //            mCopy[index, i] = int.MaxValue;
-        //        }
-        //        seamList.Add(result);
-        //    }
-
-        //    return seamList;
-        //}
+        public static int[,] UpdateImageEnergyHorizontalSeam(EnergyFunctionBase energyFunction, int[,] m, int[] seam,
+            out double avgEnergy, out Bitmap bmp)
+        {
+            energyFunction.Energy = m;
+            energyFunction.UpdateEnergyHorizontalSeam(Width, Height, Pixels, seam);
+            bmp = ToImage(energyFunction.Energy);
+            avgEnergy = energyFunction.AvgEnergy;
+            return energyFunction.Energy;
+        }
 
         public static int[,] FindImageEnergy(EnergyFunctionBase energyFunction, out double avgEnergy, out Bitmap bmp)
         {
@@ -211,101 +181,6 @@ namespace SeamCarvingCore
             bmp = ToImage(energyFunction.Energy);
             avgEnergy = energyFunction.AvgEnergy;
             return energyFunction.Energy;
-            bmp = new Bitmap(Width, Height);
-
-            //var lockBitmapPost = new LockBitmap(bmp);
-
-            //lockBitmapPost.LockBits();
-
-            int red, green, blue;
-            var m = new int[Width, Height];
-            avgEnergy = 0;
-
-            var maxIntensity = 0;
-            for (var i = 0; i < Width; i++)
-            {
-                for (var j = 0; j < Height; j++)
-                {
-                    red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
-                    green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
-                    blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
-
-                    var intensity = (red * red + green * green + blue * blue) / 5;
-                    m[i, j] = intensity;
-                    avgEnergy += intensity;
-                    if (intensity > maxIntensity)
-                        maxIntensity = intensity;
-                }
-            }
-
-            //for (int i = 0; i < Width; i++)
-            //{
-            //    for (int j = 0; j < Height; j++)
-            //    {
-            //        var intensity = (int)(((double)mCopy[i, j] / maxIntensity) * 255);
-            //        lockBitmapPost.SetPixel(i, j, Color.FromArgb(intensity, intensity, intensity));
-            //    }
-            //}
-
-            //lockBitmapPost.UnlockBits();
-
-            //return bitmapPost;
-            avgEnergy = avgEnergy / (Width * Height);
-            return m;
-        }
-
-        public static int[,] UpdateImageEnergyVerticalSeam(EnergyFunction energyFunction, int[,] m, int[] seam)
-        {
-            int red, green, blue;
-            //var mCopy = new int[Width, Height];
-
-            for (var j = 0; j < Height; j++)
-            {
-                for (var i = Math.Max(0, seam[j] - 3); i < seam[j] + 3 && i < Width; i++)
-                //for (int i = 0;  i < Width; i++)
-                {
-                    var x = m[i, j];
-                    red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
-                    green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
-                    blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
-
-                    var intensity = (red * red + green * green + blue * blue) / 5;
-                    m[i, j] = intensity;
-                }
-            }
-
-            return m;
-        }
-
-        public static int[,] UpdateImageEnergyHorizontalSeam(EnergyFunction energyFunction, int[,] m, int[] seam)
-        {
-            int red, green, blue;
-            //var mCopy = new int[Width, Height];
-
-            for (var i = 0; i < Width; i++)
-            {
-                //for (int i = Math.Max(0, seam[j] - 3); i < seam[j] + 3 && i < Width; i++)
-                //for (int j = 0; j < Height; j++)
-                for (var j = Math.Max(0, seam[i] - 3); j < seam[i] + 3 && j < Height; j++)
-                {
-                    var x = m[i, j];
-                    red = Math.Abs(4 * GetPixelData(i, j, 0) - GetPixelData(i - 1, j, 0) - GetPixelData(i, j - 1, 0) - GetPixelData(i + 1, j, 0) - GetPixelData(i, j + 1, 0));
-                    green = Math.Abs(4 * GetPixelData(i, j, 1) - GetPixelData(i - 1, j, 1) - GetPixelData(i, j - 1, 1) - GetPixelData(i + 1, j, 1) - GetPixelData(i, j + 1, 1));
-                    blue = Math.Abs(4 * GetPixelData(i, j, 2) - GetPixelData(i - 1, j, 2) - GetPixelData(i, j - 1, 2) - GetPixelData(i + 1, j, 2) - GetPixelData(i, j + 1, 2));
-
-                    var intensity = (red * red + green * green + blue * blue) / 5;
-                    m[i, j] = intensity;
-                }
-            }
-
-            return m;
-        }
-
-        private static int GetPixelData(int x, int y, int color)
-        {
-            if (x < 0 || x >= Width || y < 0 || y >= Height)
-                return 0;
-            return Pixels[x, y, color];
         }
 
         internal static int Clamp(int value, int min, int max)
