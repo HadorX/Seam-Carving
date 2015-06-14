@@ -80,6 +80,7 @@ namespace SeamCarvingGUI
 
             Bitmap bmp;
 
+            //TODO: Recalculate energy around removed seam instead whole image
             if (widthDiff < 0)
             {
                 var seamList = new List<int[]>();
