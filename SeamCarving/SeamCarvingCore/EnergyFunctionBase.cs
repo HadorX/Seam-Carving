@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,12 +18,14 @@ namespace SeamCarvingCore
 
         public int Height;
 
+        public double AvgEnergy = 0;
+
         protected abstract int GetPixelEnergy(int x, int y);
         public void ComputeEnergy(int width, int height, int [,,] pixels)
         {
             Width = width;
             Height = height;
-            Pixels = pixels;
+            Pixels = (int[,,])pixels.Clone();
 
             Energy = new int[width, height];
 
@@ -31,14 +35,36 @@ namespace SeamCarvingCore
                 {
                     Energy[x, y] = GetPixelEnergy(x, y);
                 }
-            });
+            }); 
+            for(int x=0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
+                {
+                    AvgEnergy += Energy[x, y];
+                }
+            AvgEnergy /= Width*Height;
         }
 
-        protected int GetPixelData(int x, int y, int color)
+        protected int GetPixelData(int x, int y)
         {
-            if (x < 0 || x >= Width || y < 0 || y >= Height)
-                return 0;
-            return Pixels[x, y, color];
+            var kara = 0;
+            //if (x < 0 || y < 0 || x >= Width || y >= Height)
+            //{
+            //    kara = 50;
+            //    return 255;
+            //}
+            if (x < 0)
+                x = 0;
+            if (x >= Width)
+                x = Width - 1;
+            if (y < 0)
+                y = 0;
+            if (y >= Height)
+                y = Height - 1;
+            var val = (0.2126*Pixels[x, y, 0]) + (0.7152*Pixels[x, y, 1]) + (0.0722*Pixels[x, y, 2]) + kara;
+            if (val > 255)
+                val = 255;
+            return (int)(val);
         }
+
     }
 }

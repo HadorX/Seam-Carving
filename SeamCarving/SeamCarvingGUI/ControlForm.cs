@@ -47,7 +47,7 @@ namespace SeamCarvingGUI
             Bitmap bmp;
             SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
             AverageEnergyLabel.Text = avgEnergy.ToString("F2");
-            //_imageForm.imageBox.Image = bmp;
+            _imageForm.imageBox.Image = bmp;
         }
 
         public void EnableImageControls()
@@ -71,13 +71,23 @@ namespace SeamCarvingGUI
             _imageForm.imageBox.Image.Save(SaveFileDialog.FileName);
         }
 
+        public void DrawSeam(int[] seam)
+        {
+            var bmp = new Bitmap(_imageForm.imageBox.Image);
+            for (int i = 0; i < seam.Length; i++)
+            {
+                bmp.SetPixel(seam[i], i, Color.Red);
+            }
+            _imageForm.imageBox.Image = bmp;
+        }
+
         private void SetWidthButton_Click(object sender, EventArgs e)
         {
             var widthDiff = _imageForm.imageBox.Width - ImageWidthNumeric.Value;
 
             int[,] m = new int[Width,Height];
             double avgEnergy;
-
+            var update = true;
             Bitmap bmp;
 
             //TODO: Recalculate energy around removed seam instead whole image
@@ -123,7 +133,7 @@ namespace SeamCarvingGUI
                     ProgressBar.Value = (int)((i * 100) / widthDiff);
 
                     var seam = SeamCarving.FindSeamVertical(m);
-
+                    
                     m = SeamCarving.RemoveVerticalSeam(seam, m);
                 }
             }
@@ -134,12 +144,16 @@ namespace SeamCarvingGUI
             SeamCarving.FindImageEnergy(EnergyFunction.Default, out avgEnergy, out bmp);
             AverageEnergyLabel.Text = avgEnergy.ToString("F2");
 
-            _imageForm.imageBox.Image = newBitmap;
-            _imageForm.imageBox.Width = newBitmap.Width;
-            _imageForm.imageBox.Height = newBitmap.Height;
-            ImageHeightNumeric.Value = newBitmap.Height;
-            ImageWidthNumeric.Value = newBitmap.Width;
+            if (update)
+            {
+                _imageForm.imageBox.Image = newBitmap;
+                _imageForm.imageBox.Width = newBitmap.Width;
+                _imageForm.imageBox.Height = newBitmap.Height;
+                ImageHeightNumeric.Value = newBitmap.Height;
+                ImageWidthNumeric.Value = newBitmap.Width;
+            }
             ProgressBar.Value = 100;
+            //_imageForm.imageBox.Image = bmp;
         }
     }
 }
