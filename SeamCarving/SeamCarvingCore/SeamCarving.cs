@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace SeamCarvingCore
@@ -9,6 +11,10 @@ namespace SeamCarvingCore
         private static int Height { get; set; }
         private static int[, ,] Pixels { get; set; }
 
+        public delegate void ProgressDelegate(int value);
+
+        public static ProgressDelegate Progress;
+        
         public static void LoadImage(Bitmap bmp)
         {
             var bits = new LockBitmap(bmp);
@@ -424,5 +430,124 @@ namespace SeamCarvingCore
             bmpData.UnlockBits();
             return bmp;
         }
+
+        public static void ResizeWidth(EnergyFunctionBase energyFunction, decimal widthDiff)
+        {
+            int[,] m;
+            double avgEnergy;
+            Bitmap bmp;
+            Progress(0);
+
+            if (widthDiff < 0)
+            {
+                var original = SeamCarving.ToImage();
+                var seamList = new List<int[]>();
+
+                m = SeamCarving.FindImageEnergy(energyFunction, out avgEnergy, out bmp);
+                for (int i = 0; i < -widthDiff; i++)
+                {
+                    Progress((int)((i * 100) / -widthDiff));
+                    var seam = SeamCarving.FindSeamVertical(m);
+                    seamList.Add(seam);
+
+                    m = SeamCarving.RemoveVerticalSeam(seam, m);
+                    m = SeamCarving.UpdateImageEnergyVerticalSeam(energyFunction, m, seam, out avgEnergy, out bmp);
+                }
+
+                SeamCarving.LoadImage(new Bitmap(original));
+                m = SeamCarving.FindImageEnergy(energyFunction, out avgEnergy, out bmp);
+                for (int i = 0; i < seamList.Count; i++)
+                {
+                    var seam = seamList[i];
+                    m = SeamCarving.AddVerticalSeam(seam, m);
+
+                    for (int j = 1; j < seamList.Count; j++)
+                    {
+                        for (int k = 0; k < seam.Length; k++)
+                        {
+                            if (seam[k] <= seamList[j][k])
+                            {
+                                seamList[j][k]++;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                m = SeamCarving.FindImageEnergy(energyFunction, out avgEnergy, out bmp);
+                for (int i = 0; i < widthDiff; i++)
+                {
+
+                    Progress((int)((i * 100) / widthDiff));
+                    var seam = SeamCarving.FindSeamVertical(m);
+
+                    m = SeamCarving.RemoveVerticalSeam(seam, m);
+                    m = SeamCarving.UpdateImageEnergyVerticalSeam(energyFunction, m, seam, out avgEnergy, out bmp);
+                }
+            }
+            Progress(100);
+        }
+
+        public static void ResizeHeight(EnergyFunctionBase energyFunction, decimal heightDiff)
+        {
+            int[,] m;
+            double avgEnergy;
+            Bitmap bmp;
+            Progress(0);
+
+            if (heightDiff < 0)
+            {
+                var seamList = new List<int[]>();
+                Bitmap original = SeamCarving.ToImage();
+                m = SeamCarving.FindImageEnergy(energyFunction, out avgEnergy, out bmp);
+                for (int i = 0; i < -heightDiff; i++)
+                {
+
+                    Progress((int)((i * 100) / -heightDiff));
+
+                    var seam = SeamCarving.FindSeamHorizontal(m);
+                    seamList.Add(seam);
+
+                    m = SeamCarving.RemoveHorizontalSeam(seam, m);
+                    m = SeamCarving.UpdateImageEnergyHorizontalSeam(energyFunction, m, seam, out avgEnergy, out bmp);
+                }
+
+                SeamCarving.LoadImage(new Bitmap(original));
+                m = SeamCarving.FindImageEnergy(energyFunction, out avgEnergy, out bmp);
+                for (int i = 0; i < seamList.Count; i++)
+                {
+                    var seam = seamList[i];
+                    m = SeamCarving.AddHorizontalSeam(seam, m);
+
+                    for (int j = 1; j < seamList.Count; j++)
+                    {
+                        for (int k = 0; k < seam.Length; k++)
+                        {
+                            if (seam[k] <= seamList[j][k])
+                            {
+                                seamList[j][k]++;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                m = SeamCarving.FindImageEnergy(energyFunction, out avgEnergy, out bmp);
+                for (int i = 0; i < heightDiff; i++)
+                {
+
+                    Progress((int)((i * 100) / heightDiff));
+
+                    var seam = SeamCarving.FindSeamHorizontal(m);
+
+                    m = SeamCarving.RemoveHorizontalSeam(seam, m);
+                    m = SeamCarving.UpdateImageEnergyHorizontalSeam(energyFunction, m, seam, out avgEnergy, out bmp);
+                }
+            }
+            Progress(100);
+        }
+    
     }
 }
