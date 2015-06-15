@@ -32,7 +32,7 @@ namespace SeamCarvingGUI
         static void Main()
         {
             SeamCarving.Progress += new SeamCarving.ProgressDelegate(LogProgress);
-            //new Generator().Generate();
+            new Generator().Generate();
            //new Generator().GenerateEnergyMaps();
         }
 
